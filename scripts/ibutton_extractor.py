@@ -1,18 +1,19 @@
 import collections
 import logging
+import sys
+from pprint import pprint
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s [%(levelname)s] %(message)s [%(filename)s:%(funcName)s]')
 import synapse.cortex
 import synapse.daemon
 import synapse.telepath
 import synapse.lib.service
 import synapse.swarm.runtime
-sys.path.append('./scripts')
-import ibutton_ingest
+import scripts.ibutton_ingest as ibutton_ingest
 # ???
 ID = 0
 PROPS = 1
 # COre
-core = synapse.cortex.openurl('sqlite:////Users/wgibb/Documents/projects/synapse/ibutton_data.db')
+core = synapse.cortex.openurl('sqlite:////Users/wgibb/Documents/projects/synapse/ibutton_data_0326.db')
 # a svcbus is an eventbus that multiple services can share and use to communicate with one another.
 svcbus = synapse.lib.service.SvcBus()
 # a daemon listens on an address and can respond to requests.
@@ -65,9 +66,9 @@ for k, v in d.items():
 # Compute the things
 for k, v in d2.items():
     v.analyze_button()
-
+pprint(d2)
 # Write button data to disk
 import os
-os.makedirs('./datas')
+os.makedirs('./datas_0326')
 for k, v in d2.items():
-    v.write_computed_data_to_files('./datas')
+    v.write_computed_data_to_files('./datas_0326')

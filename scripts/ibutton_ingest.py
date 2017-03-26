@@ -68,8 +68,8 @@ def parse_order_csv(fp: str) -> dict:
 def undo_tufo(tufo: tuple, prop_base='mss_ibutton'):
     tid, props = tufo
     d = {
-        ROW: int(props.get('{}:{}'.format(prop_base, ROW))),
-        BLOCK: int(props.get('{}:{}'.format(prop_base, BLOCK))),
+        ROW: props.get('{}:{}'.format(prop_base, ROW)),
+        BLOCK: props.get('{}:{}'.format(prop_base, BLOCK)),
         'temp': float(props.get('{}:temperature'.format(prop_base))),
         'date': datetime.datetime.strptime(props.get('{}:date'.format(prop_base)), TIME_FORMAT)
     }
@@ -157,16 +157,15 @@ class ButtonData(object):
             #      'temperature': temperature}
             d = {
                 'date': date.strftime(TIME_FORMAT),
-                'temperature': str(temperature)
                 }
             for key in LOCATION_KEYS:
-                d[key] = self.metadata.get(key)
-            # Add in anymore metadata about the measurement itself?
-            guid_d = d.copy()
-            d['button'] = self.metadata.get('Logger serial number', 'MissingSerialNumber')
-            s = json.dumps(guid_d, sort_keys=True)
+                d[key] = int(self.metadata.get(key))
+            s = json.dumps(d, sort_keys=True)
             h = hashlib.md5(s.encode())
             guid = uuid.UUID(bytes=h.digest())
+            # Add in anymore metadata about the measurement itself?
+            d['temperature'] =  str(temperature)
+            d['button'] = self.metadata.get('Logger serial number', 'MissingSerialNumber')
             yield str(guid), d
 
     def append(self, row):
@@ -351,7 +350,7 @@ def main(options):  # pragma: no cover
     if not options.verbose:
         logging.disable(logging.DEBUG)
 
-    c = cortex.openurl('sqlite:////Users/wgibb/Documents/projects/synapse/ibutton_data.db')
+    c = cortex.openurl('sqlite:////Users/wgibb/Documents/projects/synapse/ibutton_data_0326.db')
 
     order_d = parse_order_csv(fp=options.order)
 
